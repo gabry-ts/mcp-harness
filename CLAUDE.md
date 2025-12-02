@@ -102,3 +102,26 @@ If there are still stories with `passes: false`, end your response normally (ano
 - Commit frequently
 - Keep CI green
 - Read the Codebase Patterns section in progress.txt before starting
+
+## Project: mcp-harness
+
+In-memory testing toolkit for MCP servers in TypeScript — supertest for MCP.
+
+### Stack
+- TypeScript (strict), Node.js >=18, ESM
+- Build: tsup (dual CJS/ESM with .d.ts)
+- Test: vitest (globals: true, testTimeout: 15000)
+- Format: prettier (singleQuote, trailingComma all, printWidth 100)
+- Dependencies: @modelcontextprotocol/sdk, zod
+
+### Commands
+- `npm run build` — build with tsup
+- `npm test` — run vitest
+- `npm run lint` — check formatting with prettier
+- `npm run format` — fix formatting
+
+### Conventions
+- Entry points: src/index.ts (main), src/assertions.ts (assertion helpers)
+- Exports map: `.` and `./assertions` with dual ESM/CJS + types
+- Test fixtures in test/fixtures/
+- Examples in examples/

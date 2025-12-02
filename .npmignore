@@ -1,0 +1,11 @@
+src/
+test/
+examples/
+.github/
+.changeset/
+.prettierrc
+.prettierignore
+tsconfig.json
+tsup.config.ts
+vitest.config.ts
+.gitignore
