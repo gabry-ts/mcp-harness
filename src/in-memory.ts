@@ -1,10 +1,37 @@
+import { Client } from '@modelcontextprotocol/sdk/client/index.js';
+import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { McpHarness } from './harness.js';
 import type { HarnessOptions } from './types.js';
-import type { McpHarness } from './harness.js';
 
 export async function createInMemoryHarness(
-  _server: McpServer,
-  _options?: HarnessOptions,
+  server: McpServer,
+  options?: HarnessOptions,
 ): Promise<McpHarness> {
-  throw new Error('not implemented');
+  const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
+
+  await server.connect(serverTransport);
+
+  const client = new Client({
+    name: options?.clientName ?? 'mcp-harness',
+    version: options?.clientVersion ?? '0.1.0',
+  });
+
+  if (options?.timeout) {
+    await Promise.race([
+      client.connect(clientTransport),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('Harness connection timed out')), options.timeout),
+      ),
+    ]);
+  } else {
+    await client.connect(clientTransport);
+  }
+
+  const cleanup = async () => {
+    await client.close();
+    await server.close();
+  };
+
+  return new McpHarness(client, cleanup);
 }
