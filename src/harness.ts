@@ -13,11 +13,15 @@ import { isSubprocessConfig } from './types.js';
 
 export class McpHarness {
   private _closed = false;
+  private _requestTimeout?: number;
 
   constructor(
     private _client: Client,
     private _cleanup: () => Promise<void>,
-  ) {}
+    requestTimeout?: number,
+  ) {
+    this._requestTimeout = requestTimeout;
+  }
 
   get client(): Client {
     return this._client;
@@ -29,39 +33,43 @@ export class McpHarness {
     }
   }
 
+  private get _reqOpts(): { timeout: number } | undefined {
+    return this._requestTimeout ? { timeout: this._requestTimeout } : undefined;
+  }
+
   async listTools(): Promise<Tool[]> {
     this.assertOpen();
-    const result = await this._client.listTools();
+    const result = await this._client.listTools(undefined, this._reqOpts);
     return result.tools;
   }
 
   async callTool(name: string, args?: Record<string, unknown>): Promise<CallToolResult> {
     this.assertOpen();
-    const result = await this._client.callTool({ name, arguments: args });
+    const result = await this._client.callTool({ name, arguments: args }, undefined, this._reqOpts);
     return result as CallToolResult;
   }
 
   async listResources(): Promise<Resource[]> {
     this.assertOpen();
-    const result = await this._client.listResources();
+    const result = await this._client.listResources(undefined, this._reqOpts);
     return result.resources;
   }
 
   async readResource(uri: string): Promise<ReadResourceResult> {
     this.assertOpen();
-    const result = await this._client.readResource({ uri });
+    const result = await this._client.readResource({ uri }, this._reqOpts);
     return result as ReadResourceResult;
   }
 
   async listPrompts(): Promise<Prompt[]> {
     this.assertOpen();
-    const result = await this._client.listPrompts();
+    const result = await this._client.listPrompts(undefined, this._reqOpts);
     return result.prompts;
   }
 
   async getPrompt(name: string, args?: Record<string, string>): Promise<GetPromptResult> {
     this.assertOpen();
-    const result = await this._client.getPrompt({ name, arguments: args });
+    const result = await this._client.getPrompt({ name, arguments: args }, this._reqOpts);
     return result as GetPromptResult;
   }
 

@@ -35,5 +35,5 @@ export async function createSubprocessHarness(
     await transport.close();
   };
 
-  return new McpHarness(client, cleanup);
+  return new McpHarness(client, cleanup, options?.timeout);
 }

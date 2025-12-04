@@ -33,5 +33,5 @@ export async function createInMemoryHarness(
     await server.close();
   };
 
-  return new McpHarness(client, cleanup);
+  return new McpHarness(client, cleanup, options?.timeout);
 }
