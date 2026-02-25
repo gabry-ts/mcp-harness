@@ -57,6 +57,7 @@ const harness = await createHarness(myServer);
 // List tools, resources, prompts
 const tools = await harness.listTools();
 const resources = await harness.listResources();
+const templates = await harness.listResourceTemplates();
 const prompts = await harness.listPrompts();
 
 // Call a tool
@@ -67,6 +68,13 @@ const resource = await harness.readResource('info://version');
 
 // Get a prompt
 const prompt = await harness.getPrompt('my-prompt', { name: 'Gab' });
+
+// Server info
+const capabilities = harness.getServerCapabilities();
+const version = harness.getServerVersion();
+
+// Health check
+await harness.ping();
 
 // Always close when done
 await harness.close();
@@ -87,6 +95,10 @@ const harness = await createHarness({
 });
 
 const tools = await harness.listTools();
+
+// Access subprocess stderr for debugging
+console.log(harness.stderr);
+
 await harness.close();
 ```
 
@@ -158,10 +170,15 @@ const harness = await createHarness(server, {
 | `callTool()` | `(name, args?) => Promise<CallToolResult>` | Call a tool by name |
 | `listResources()` | `() => Promise<Resource[]>` | List all registered resources |
 | `readResource()` | `(uri) => Promise<ReadResourceResult>` | Read a resource by URI |
+| `listResourceTemplates()` | `() => Promise<ResourceTemplate[]>` | List resource templates |
 | `listPrompts()` | `() => Promise<Prompt[]>` | List all registered prompts |
 | `getPrompt()` | `(name, args?) => Promise<GetPromptResult>` | Get a prompt by name |
+| `ping()` | `() => Promise<void>` | Ping the server |
+| `getServerCapabilities()` | `() => ServerCapabilities \| undefined` | Get server capabilities |
+| `getServerVersion()` | `() => { name, version } \| undefined` | Get server name and version |
 | `close()` | `() => Promise<void>` | Close the harness (idempotent) |
 | `client` | `Client` | Raw MCP Client for advanced use |
+| `stderr` | `string \| undefined` | Subprocess stderr output (subprocess mode only) |
 
 ### `HarnessOptions`
 
