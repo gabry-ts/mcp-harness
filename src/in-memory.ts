@@ -12,18 +12,29 @@ export async function createInMemoryHarness(
 
   await server.connect(serverTransport);
 
-  const client = new Client({
-    name: options?.clientName ?? 'mcp-harness',
-    version: options?.clientVersion ?? '0.1.0',
-  });
+  const client = new Client(
+    {
+      name: options?.clientName ?? 'mcp-harness',
+      version: options?.clientVersion ?? '0.1.0',
+    },
+    options?.clientCapabilities ? { capabilities: options.clientCapabilities } : undefined,
+  );
 
   if (options?.timeout) {
-    await Promise.race([
-      client.connect(clientTransport),
-      new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error('Harness connection timed out')), options.timeout),
-      ),
-    ]);
+    let timer: ReturnType<typeof setTimeout>;
+    try {
+      await Promise.race([
+        client.connect(clientTransport),
+        new Promise<never>((_, reject) => {
+          timer = setTimeout(
+            () => reject(new Error('Harness connection timed out')),
+            options.timeout,
+          );
+        }),
+      ]);
+    } finally {
+      clearTimeout(timer!);
+    }
   } else {
     await client.connect(clientTransport);
   }

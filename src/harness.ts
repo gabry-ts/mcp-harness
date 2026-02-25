@@ -5,7 +5,9 @@ import type {
   GetPromptResult,
   Tool,
   Resource,
+  ResourceTemplate,
   Prompt,
+  ServerCapabilities,
 } from '@modelcontextprotocol/sdk/types.js';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { HarnessOptions, SubprocessConfig } from './types.js';
@@ -13,18 +15,26 @@ import { isSubprocessConfig } from './types.js';
 
 export class McpHarness {
   private _closed = false;
+  private _closing: Promise<void> | null = null;
   private _requestTimeout?: number;
+  private _getStderr?: () => string;
 
   constructor(
     private _client: Client,
     private _cleanup: () => Promise<void>,
     requestTimeout?: number,
+    getStderr?: () => string,
   ) {
     this._requestTimeout = requestTimeout;
+    this._getStderr = getStderr;
   }
 
   get client(): Client {
     return this._client;
+  }
+
+  get stderr(): string | undefined {
+    return this._getStderr?.();
   }
 
   private assertOpen(): void {
@@ -61,6 +71,12 @@ export class McpHarness {
     return result as ReadResourceResult;
   }
 
+  async listResourceTemplates(): Promise<ResourceTemplate[]> {
+    this.assertOpen();
+    const result = await this._client.listResourceTemplates(undefined, this._reqOpts);
+    return result.resourceTemplates;
+  }
+
   async listPrompts(): Promise<Prompt[]> {
     this.assertOpen();
     const result = await this._client.listPrompts(undefined, this._reqOpts);
@@ -73,11 +89,26 @@ export class McpHarness {
     return result as GetPromptResult;
   }
 
+  async ping(): Promise<void> {
+    this.assertOpen();
+    await this._client.ping(this._reqOpts);
+  }
+
+  getServerCapabilities(): ServerCapabilities | undefined {
+    return this._client.getServerCapabilities();
+  }
+
+  getServerVersion(): { name: string; version: string } | undefined {
+    return this._client.getServerVersion();
+  }
+
   async close(): Promise<void> {
-    if (this._closed) return;
+    if (this._closed) return this._closing ?? undefined;
     this._closed = true;
-    await this._client.close();
-    await this._cleanup();
+    this._closing = (async () => {
+      await this._cleanup();
+    })();
+    return this._closing;
   }
 }
 

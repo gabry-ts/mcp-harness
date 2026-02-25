@@ -30,5 +30,10 @@ export interface SubprocessConfig {
  * Type guard to check if a value is a SubprocessConfig.
  */
 export function isSubprocessConfig(value: unknown): value is SubprocessConfig {
-  return typeof value === 'object' && value !== null && 'command' in value;
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'command' in value &&
+    typeof (value as SubprocessConfig).command === 'string'
+  );
 }
