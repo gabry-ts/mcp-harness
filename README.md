@@ -1,7 +1,7 @@
 # mcp-harness
 
 [![npm version](https://img.shields.io/npm/v/mcp-harness.svg)](https://www.npmjs.com/package/mcp-harness)
-[![CI](https://github.com/gabrielepartiti/mcp-harness/actions/workflows/ci.yml/badge.svg)](https://github.com/gabrielepartiti/mcp-harness/actions/workflows/ci.yml)
+[![CI](https://github.com/gabry-ts/mcp-harness/actions/workflows/ci.yml/badge.svg)](https://github.com/gabry-ts/mcp-harness/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 > In-memory testing toolkit for MCP servers in TypeScript — supertest for MCP.
@@ -217,7 +217,7 @@ In **subprocess mode**, the harness spawns your server as a child process and co
 ## Contributing
 
 ```bash
-git clone https://github.com/gabrielepartiti/mcp-harness.git
+git clone https://github.com/gabry-ts/mcp-harness.git
 cd mcp-harness
 npm install
 npm test
