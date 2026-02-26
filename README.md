@@ -222,11 +222,12 @@ const harness = await createHarness(server, {
 
 In **in-memory mode**, mcp-harness uses the MCP SDK's `InMemoryTransport` to create a linked pair of transports. Your `McpServer` connects to one side, and a `Client` connects to the other. Messages flow directly through memory — no serialization, no IO, no child processes.
 
-```
-┌──────────────┐     InMemoryTransport     ┌──────────────┐
-│  MCP Client   │◄════════════════════════►│  McpServer    │
-│  (harness)    │    linked pair            │  (your code)  │
-└──────────────┘                           └──────────────┘
+```mermaid
+flowchart LR
+  client["MCP Client<br/>(harness)"]
+  server["McpServer<br/>(your code)"]
+
+  client <--> |InMemoryTransport<br/>linked pair| server
 ```
 
 In **subprocess mode**, the harness spawns your server as a child process and connects via `StdioClientTransport`, the same way a real MCP host would.
